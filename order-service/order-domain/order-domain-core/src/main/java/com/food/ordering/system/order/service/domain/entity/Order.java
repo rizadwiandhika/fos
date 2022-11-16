@@ -23,7 +23,7 @@ public class Order extends AggregateRoot<OrderId> {
 
 	private TrackingId trackingId;
 	private OrderStatus orderStatus;
-	private List<String> failerMessages;
+	private List<String> failureMessages;
 
 	// Business logic
 	public void validateOrder() {
@@ -119,12 +119,12 @@ public class Order extends AggregateRoot<OrderId> {
 	}
 
 	private void updateFailerMessages(List<String> failureMessages) {
-		if (this.failerMessages != null && failureMessages != null) {
-			this.failerMessages.addAll(failureMessages.stream().filter((m -> m.isEmpty() == false)).toList());
+		if (this.failureMessages != null && failureMessages != null) {
+			this.failureMessages.addAll(failureMessages.stream().filter((m -> m.isEmpty() == false)).toList());
 		}
 
-		if (this.failerMessages == null) {
-			this.failerMessages = failureMessages.stream().filter((m -> m.isEmpty() == false)).toList();
+		if (this.failureMessages == null) {
+			this.failureMessages = failureMessages.stream().filter((m -> m.isEmpty() == false)).toList();
 		}
 	}
 
@@ -171,8 +171,8 @@ public class Order extends AggregateRoot<OrderId> {
 		return orderStatus;
 	}
 
-	public List<String> getFailerMessages() {
-		return failerMessages;
+	public List<String> getFailureMessages() {
+		return failureMessages;
 	}
 
 	// Builder

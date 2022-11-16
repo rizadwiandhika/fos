@@ -10,13 +10,15 @@ import org.springframework.stereotype.Component;
 
 import com.food.ordering.system.domain.valueObject.CustomerId;
 import com.food.ordering.system.domain.valueObject.Money;
+import com.food.ordering.system.domain.valueObject.OrderId;
 import com.food.ordering.system.domain.valueObject.ProductId;
 import com.food.ordering.system.domain.valueObject.RestaurantId;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderCommand;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderResponse;
 import com.food.ordering.system.order.service.domain.dto.create.OrderAddress;
+import com.food.ordering.system.order.service.domain.dto.message.PaymentResponse;
 // import com.food.ordering.system.order.service.domain.dto.create.OrderItem;
-
+import com.food.ordering.system.order.service.domain.dto.track.TrackOrderResponse;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.entity.OrderItem;
 import com.food.ordering.system.order.service.domain.entity.Product;
@@ -52,6 +54,30 @@ public class OrderDataMapper {
 				.build();
 	}
 
+	public StreeAddress orderAddressToStreeAddress(OrderAddress address) {
+		return new StreeAddress(
+				UUID.randomUUID(),
+				address.getStreet(),
+				address.getPostalCode(),
+				address.getCity());
+	}
+
+	public TrackOrderResponse orderToTrackOrderResponse(Order order) {
+		return TrackOrderResponse.builder()
+				.orderTrackingId(order.getTrackingId().getValue())
+				.orderStatus(order.getOrderStatus())
+				.failureMessages(order.getFailureMessages())
+				.build();
+	}
+
+	public Order paymentResponseToOrder(PaymentResponse paymentResponse) {
+		return Order.builder()
+				.orderId(new OrderId(UUID.fromString(paymentResponse.getOrderId())))
+				.customerId(new CustomerId(UUID.fromString(paymentResponse.getCustomerId())))
+				.price(new Money(paymentResponse.getPrice()))
+				.build();
+	}
+
 	private List<OrderItem> orderItemToOrderItemEntities(
 			@NotNull List<com.food.ordering.system.order.service.domain.dto.create.OrderItem> orderItems) {
 		return orderItems.stream()
@@ -63,14 +89,6 @@ public class OrderDataMapper {
 						.build())
 				.collect(Collectors.toList());
 
-	}
-
-	public StreeAddress orderAddressToStreeAddress(OrderAddress address) {
-		return new StreeAddress(
-				UUID.randomUUID(),
-				address.getStreet(),
-				address.getPostalCode(),
-				address.getCity());
 	}
 
 }
