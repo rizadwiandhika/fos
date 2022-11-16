@@ -13,4 +13,11 @@
 	<!-- Biasanya itu nama module/folder nya -->
 	<artifactId>order-domain-core</artifactId>
 
+	<dependencies>
+		<dependency>
+			<groupId>com.food.ordering.system</groupId>
+			<artifactId>common-domain</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>
