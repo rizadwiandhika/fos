@@ -1,6 +1,7 @@
 package com.food.ordering.system.order.service.domain.entity;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.food.ordering.system.domain.entity.AggregateRoot;
 import com.food.ordering.system.domain.valueObject.CustomerId;
@@ -8,6 +9,8 @@ import com.food.ordering.system.domain.valueObject.Money;
 import com.food.ordering.system.domain.valueObject.OrderId;
 import com.food.ordering.system.domain.valueObject.OrderStatus;
 import com.food.ordering.system.domain.valueObject.RestaurantId;
+import com.food.ordering.system.order.service.domain.exception.OrderDomainException;
+import com.food.ordering.system.order.service.domain.valueObject.OrderItemId;
 import com.food.ordering.system.order.service.domain.valueObject.StreeAddress;
 import com.food.ordering.system.order.service.domain.valueObject.TrackingId;
 
@@ -16,12 +19,116 @@ public class Order extends AggregateRoot<OrderId> {
 	private final RestaurantId restaurantId;
 	private final StreeAddress deliveryAddress;
 	private final Money price;
-	private final List<OrderItem> orderItems;
+	private final List<OrderItem> items;
 
 	private TrackingId trackingId;
 	private OrderStatus orderStatus;
 	private List<String> failerMessages;
 
+	// Business logic
+	public void validateOrder() {
+		validateInitialOrder();
+		validateTotalPrice();
+		validateItemsPrice();
+	}
+
+	public void initializeOrder() {
+		super.setId(new OrderId(UUID.randomUUID()));
+		trackingId = new TrackingId(UUID.randomUUID());
+		orderStatus = OrderStatus.PENDING;
+
+		initializeOrderItems();
+	}
+
+	public void pay() {
+		if (orderStatus != OrderStatus.PENDING) {
+			throw new OrderDomainException("Order pay denied. Because it is not in pending state");
+		}
+
+		orderStatus = OrderStatus.PAID;
+	}
+
+	public void approve() {
+		if (orderStatus != OrderStatus.PAID) {
+			throw new OrderDomainException("Order approve denied! Because it is not in paid state");
+		}
+
+		orderStatus = OrderStatus.APPROVED;
+	}
+
+	public void initCancel(List<String> failureMessages) {
+		if (orderStatus != OrderStatus.PAID) {
+			throw new OrderDomainException("Order initCancel denied! Because it not in paid state");
+		}
+
+		orderStatus = OrderStatus.CANCELLING;
+		updateFailerMessages(failureMessages);
+	}
+
+	public void cancel(List<String> failureMessages) {
+		if (orderStatus != OrderStatus.CANCELLING || orderStatus != OrderStatus.PENDING) {
+			throw new OrderDomainException("Order cancel denied! Because it is not in cancelling or pending state");
+		}
+
+		orderStatus = OrderStatus.CANCELLED;
+		updateFailerMessages(failureMessages);
+	}
+
+	// Business logic helpers
+	private void validateInitialOrder() {
+		if (orderStatus != null || getId() != null) {
+			throw new OrderDomainException("Order is is not in correct state");
+		}
+	}
+
+	private void validateTotalPrice() {
+		if (price == null || price.isGreaterThanZero() == false) {
+			throw new OrderDomainException("Invalid order price. It should be greater than zero");
+		}
+	}
+
+	private void validateItemsPrice() {
+		Money orderItemsTotal = items.stream().map((orderItem) -> {
+			validateItemPrice(orderItem);
+			return orderItem.getSubTotal();
+		}).reduce(Money.ZERO, Money::add);
+
+		if (price.equals(orderItemsTotal) == false) {
+			String message = String.format("Total price: %s is not equal to sum of order items: %s",
+					price.getAmount(), orderItemsTotal.getAmount());
+			throw new OrderDomainException(message);
+		}
+
+	}
+
+	private void validateItemPrice(OrderItem orderItem) {
+		if (orderItem.isPriceValid() == false) {
+			String message = String.format("Order item price: %s. Invalid order item price for order item: %s",
+					orderItem.getPrice().getAmount(), orderItem.getProduct().getId().getValue());
+
+			throw new OrderDomainException(message);
+		}
+	}
+
+	private void initializeOrderItems() {
+		long itemId = 1;
+
+		for (OrderItem orderItem : items) {
+			orderItem.initializeOrderItem(super.getId(), new OrderItemId(itemId++));
+		}
+	}
+
+	private void updateFailerMessages(List<String> failureMessages) {
+		if (this.failerMessages != null && failureMessages != null) {
+			this.failerMessages.addAll(failureMessages.stream().filter((m -> m.isEmpty() == false)).toList());
+		}
+
+		if (this.failerMessages == null) {
+			this.failerMessages = failureMessages.stream().filter((m -> m.isEmpty() == false)).toList();
+		}
+	}
+
+	// Constructor, setters, and getters
 	private Order(Builder builder) {
 		super.setId(builder.orderId);
 
@@ -29,10 +136,7 @@ public class Order extends AggregateRoot<OrderId> {
 		this.restaurantId = builder.restaurantId;
 		this.deliveryAddress = builder.deliveryAddress;
 		this.price = builder.price;
-		this.orderItems = builder.orderItems;
-		this.trackingId = builder.trackingId;
-		this.orderStatus = builder.orderStatus;
-		this.failerMessages = builder.failerMessages;
+		this.items = builder.orderItems;
 	}
 
 	public static Builder builder() {
@@ -56,7 +160,7 @@ public class Order extends AggregateRoot<OrderId> {
 	}
 
 	public List<OrderItem> getOrderItems() {
-		return orderItems;
+		return items;
 	}
 
 	public TrackingId getTrackingId() {
@@ -79,10 +183,6 @@ public class Order extends AggregateRoot<OrderId> {
 		private StreeAddress deliveryAddress;
 		private Money price;
 		private List<OrderItem> orderItems;
-
-		private TrackingId trackingId;
-		private OrderStatus orderStatus;
-		private List<String> failerMessages;
 
 		private Builder() {
 		}
@@ -114,21 +214,6 @@ public class Order extends AggregateRoot<OrderId> {
 
 		public Builder orderItems(List<OrderItem> orderItems) {
 			this.orderItems = orderItems;
-			return this;
-		}
-
-		public Builder trackingId(TrackingId trackingId) {
-			this.trackingId = trackingId;
-			return this;
-		}
-
-		public Builder orderStatus(OrderStatus orderStatus) {
-			this.orderStatus = orderStatus;
-			return this;
-		}
-
-		public Builder failerMessages(List<String> failerMessages) {
-			this.failerMessages = failerMessages;
 			return this;
 		}
 

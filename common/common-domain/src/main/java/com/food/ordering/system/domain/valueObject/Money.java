@@ -6,6 +6,8 @@ import java.math.RoundingMode;
 public class Money {
 	private final BigDecimal amount;
 
+	public static final Money ZERO = new Money(BigDecimal.ZERO);
+
 	public Money(BigDecimal amount) {
 		this.amount = amount;
 	}
