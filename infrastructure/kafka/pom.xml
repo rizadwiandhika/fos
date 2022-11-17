@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>food-ordering-system</artifactId>
+		<groupId>com.food.ordering.system</groupId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.food.ordering.system</groupId>
-		<artifactId>infrastructure</artifactId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
-
+	<artifactId>kafka</artifactId>
+	<packaging>pom</packaging>
 	<modules>
-		<module>kafka-config-data</module>
+		<module>kafka-producer</module>
 		<module>kafka-consumer</module>
 		<module>kafka-model</module>
-		<module>kafka-producer</module>
+		<module>kafka-config-data</module>
 	</modules>
 
-	<groupId>com.food.ordering.system</groupId>
-	<artifactId>kafka</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-
-	<!-- Include confluent repository the package is not available in maven default repository -->
 	<repositories>
 		<repository>
 			<id>confluent</id>
@@ -63,8 +59,10 @@
 			<dependency>
 				<groupId>org.apache.avro</groupId>
 				<artifactId>avro</artifactId>
-				<version>${kafka-avro-serializer.version}</version>
+				<version>${avro.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+
 </project>
