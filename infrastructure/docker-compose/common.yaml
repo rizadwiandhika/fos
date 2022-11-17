@@ -1,0 +1,6 @@
+version: '3.7'
+
+networks:
+  food-ordering-system:
+    # Enable reaching another container by container name, by the same network
+    driver: bridge
