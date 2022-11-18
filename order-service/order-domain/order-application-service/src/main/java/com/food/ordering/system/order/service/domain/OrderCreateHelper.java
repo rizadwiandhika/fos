@@ -57,8 +57,6 @@ public class OrderCreateHelper {
 
 		saveOrder(order);
 
-		log.info("Order created with id: {}", order.getId().getValue());
-
 		return orderCreatedEvent;
 	}
 
