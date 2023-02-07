@@ -25,6 +25,8 @@ public class Order extends AggregateRoot<OrderId> {
 	private OrderStatus orderStatus;
 	private List<String> failureMessages;
 
+	public static final String FAILURE_MESSAGE_DELIMITER = ",";
+
 	// Business logic
 	public void validateOrder() {
 		validateInitialOrder();
@@ -137,6 +139,10 @@ public class Order extends AggregateRoot<OrderId> {
 		this.deliveryAddress = builder.deliveryAddress;
 		this.price = builder.price;
 		this.items = builder.orderItems;
+
+		this.trackingId = builder.trackingId;
+		this.orderStatus = builder.orderStatus;
+		this.failureMessages = builder.failureMessages;
 	}
 
 	public static Builder builder() {
@@ -183,6 +189,9 @@ public class Order extends AggregateRoot<OrderId> {
 		private StreeAddress deliveryAddress;
 		private Money price;
 		private List<OrderItem> orderItems;
+		private TrackingId trackingId;
+		private OrderStatus orderStatus;
+		private List<String> failureMessages;
 
 		private Builder() {
 		}
@@ -214,6 +223,21 @@ public class Order extends AggregateRoot<OrderId> {
 
 		public Builder orderItems(List<OrderItem> orderItems) {
 			this.orderItems = orderItems;
+			return this;
+		}
+
+		public Builder trackingId(TrackingId trackingId) {
+			this.trackingId = trackingId;
+			return this;
+		}
+
+		public Builder orderStatus(OrderStatus orderStatus) {
+			this.orderStatus = orderStatus;
+			return this;
+		}
+
+		public Builder failureMessages(List<String> failureMessages) {
+			this.failureMessages = failureMessages;
 			return this;
 		}
 

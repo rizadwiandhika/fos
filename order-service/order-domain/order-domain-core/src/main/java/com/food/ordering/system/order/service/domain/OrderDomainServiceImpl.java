@@ -4,6 +4,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import com.food.ordering.system.domain.DomainConstants;
+import com.food.ordering.system.domain.event.publisher.DomainEventPublisher;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.entity.Product;
 import com.food.ordering.system.order.service.domain.entity.Restaurant;
@@ -16,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class OrderDomainServiceImpl implements OrderDomainService {
-
-	private final String UTC = "UTC";
 
 	@Override
 	public void approveOrder(Order order) {
@@ -35,25 +35,27 @@ public class OrderDomainServiceImpl implements OrderDomainService {
 	}
 
 	@Override
-	public OrderCancelledEvent cancelOrderPayment(Order order, List<String> reasons) {
+	public OrderCancelledEvent cancelOrderPayment(Order order, List<String> reasons,
+			DomainEventPublisher<OrderCancelledEvent> publisher) {
 		order.initCancel(reasons);
 
 		log.info("Cancelling ordder for order id: {}", order.getId().getValue());
 
-		return new OrderCancelledEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
+		return new OrderCancelledEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), publisher);
 	}
 
 	@Override
-	public OrderPaidEvent payOrder(Order order) {
+	public OrderPaidEvent payOrder(Order order, DomainEventPublisher<OrderPaidEvent> publisher) {
 		order.pay();
 
 		log.info("Order {} is paid", order.getId());
 
-		return new OrderPaidEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
+		return new OrderPaidEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), publisher);
 	}
 
 	@Override
-	public OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant) {
+	public OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant,
+			DomainEventPublisher<OrderCreatedEvent> publisher) {
 		validateRestaurant(restaurant);
 		setOrderProductInformation(order, restaurant);
 
@@ -62,12 +64,13 @@ public class OrderDomainServiceImpl implements OrderDomainService {
 
 		log.info("Order with id {} is created", order.getId().getValue());
 
-		return new OrderCreatedEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
+		return new OrderCreatedEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), publisher);
 	}
 
 	private void validateRestaurant(Restaurant restaurant) {
 		if (restaurant.isActive() == false) {
-			throw new OrderDomainException(String.format("Restaurant (id: %s) is not active", restaurant.getId().getValue()));
+			throw new OrderDomainException(
+					String.format("Restaurant (id: %s) is not active", restaurant.getId().getValue()));
 		}
 	}
 

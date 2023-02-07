@@ -3,7 +3,6 @@ package com.food.ordering.system.order.service.domain;
 import javax.validation.Valid;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderCommand;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderResponse;
@@ -36,12 +35,18 @@ public class OrderCreateCommandHandler {
 		// OrderCreateHelper.persistOrder method
 		// and call it in this bean to make it works
 		// * This limitation is only for AOP Proxy,
-		// * if we use AspectJ library, there is no suchlimitation. But AspectJ requires
+		// * if we use AspectJ library, there's no such limitation. But AspectJ requires
 		// * additional configuration
 		OrderCreatedEvent orderCreatedEvent = orderCreateHelper.persistOrder(createOrderCommand);
 		log.info("Order created with id: {}", orderCreatedEvent.getOrder().getId().getValue());
-
 		orderCreatedPaymentRequestMessagePublisher.publish(orderCreatedEvent);
+
+		// OrderEvent orderEvent = orderCreateHelper.persistOrder(createOrderCommand);
+		// log.info("Order created with id: {}",
+		// orderEvent.getOrder().getId().getValue());
+		// orderEvent.fire();
+		// return orderDataMapper.orderToCreateOrderResponse(orderEvent.getOrder(),
+		// "Order craeted successfully");
 
 		return orderDataMapper.orderToCreateOrderResponse(orderCreatedEvent.getOrder(), "Order craeted successfully");
 	}

@@ -35,6 +35,10 @@ public class OrderController {
 		log.info("Creating order for customer: {} at restaurant: {}", createOrderCommand.getCustomerId(),
 				createOrderCommand.getRestaurantId());
 
+		createOrderCommand.getOrderItems().forEach(item -> {
+			log.info(item.getProductId().toString());
+		});
+
 		CreateOrderResponse response = orderApplicationService.createOrder(createOrderCommand);
 
 		log.info("Order created with tracking id: {}", response.getOrderTrackingId());

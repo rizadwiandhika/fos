@@ -7,12 +7,14 @@ import com.food.ordering.system.domain.entity.AggregateRoot;
 import com.food.ordering.system.domain.valueObject.RestaurantId;
 
 public class Restaurant extends AggregateRoot<RestaurantId> {
+	private final RestaurantId restaurantId;
 	private final List<Product> products;
 	private boolean active;
 
 	private Restaurant(Builder builder) {
 		super.setId(builder.restaurantId);
 
+		this.restaurantId = builder.restaurantId;
 		this.products = builder.products;
 		this.active = builder.active;
 	}
