@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import com.food.ordering.system.order.service.dataaccess.restaurant.entity.RestaurantEntity;
+import com.food.ordering.system.dataaccess.restaurant.entity.RestaurantEntity;
 import com.food.ordering.system.order.service.dataaccess.restaurant.mapper.RestaurantDataAccessMapper;
-import com.food.ordering.system.order.service.dataaccess.restaurant.repository.RestaurantJPARepository;
+import com.food.ordering.system.dataaccess.restaurant.repository.RestaurantJPARepository;
 import com.food.ordering.system.order.service.domain.entity.Restaurant;
 import com.food.ordering.system.order.service.domain.ports.output.repository.RestaurantRepository;
 
@@ -31,6 +31,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
 				.findByRestaurantIdAndProductIdIn(restaurant.getId().getValue(), restaurantProducts);
 
 		return restaurantEntities.map(restaurantDataAccessMapper::restaurantEntityToRestaurant);
+		// restaurantEntities.map()
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.food.ordering.system.restaurant.service.dataaccess.restaurant.entity;
 
-import com.food.ordering.system.domain.valueobject.OrderApprovalStatus;
+import com.food.ordering.system.domain.valueObject.OrderApprovalStatus;
 import lombok.*;
 
 import javax.persistence.*;

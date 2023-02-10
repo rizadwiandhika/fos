@@ -2,7 +2,6 @@ package com.food.ordering.system.order.service.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -173,7 +172,8 @@ public class OrderApplicationTest {
 		OrderDomainException orderDomainException = assertThrows(OrderDomainException.class,
 				() -> orderApplicationService.createOrder(createOrderCommandWrongPrice));
 
-		assertEquals("Total price: 250.00 is not equal to sum of order items: 200.00", orderDomainException.getMessage());
+		assertEquals("Total price: 250.00 is not equal to sum of order items: 200.00",
+				orderDomainException.getMessage());
 	}
 
 	@Test
