@@ -9,10 +9,9 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.food.ordering.system</groupId>
 	<artifactId>restaurant-container</artifactId>
 	<name>restaurant-container</name>
-
+	<version>1.0-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>

@@ -6,35 +6,21 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-
     <artifactId>food-ordering-system</artifactId>
-
     <groupId>com.food.ordering.system</groupId>
-
     <version>1.0-SNAPSHOT</version>
-
   </parent>
 
-  <groupId>com.food.ordering.system</groupId>
-
   <artifactId>restaurant-service</artifactId>
-
   <packaging>pom</packaging>
-
   <name>restaurant-service</name>
+  <version>1.0-SNAPSHOT</version>
 
   <modules>
-
     <module>restaurant-domain</module>
-
     <module>restaurant-dataaccess</module>
-
     <module>restaurant-messaging</module>
-
     <module>restaurant-container</module>
-
   </modules>
-
-  <dependencies />
 
 </project>
