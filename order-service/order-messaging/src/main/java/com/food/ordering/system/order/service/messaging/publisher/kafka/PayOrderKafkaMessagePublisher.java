@@ -49,6 +49,11 @@ public class PayOrderKafkaMessagePublisher implements OrderPaidRestaurantRequest
 
 			log.info("RestaurantApprovalRequestAvroModel sent to Kafka for order id: {}", orderId);
 		} catch (Exception e) {
+			// 2023-02-14 15:00:12.125 ERROR 33578 --- [-consumer-0-C-1]
+			// .o.s.m.p.k.PayOrderKafkaMessagePublisher :
+			// Error while sending RestaurantApprovalRequestAvroModel mesage To Kafka with
+			// order id: 7e8508a5-1c4b-4cbd-8a6c-4df50514b0d8,
+			// error: Field restaurantId type:STRING pos:2 not set and has no default value
 			log.error("Error while sending RestaurantApprovalRequestAvroModel mesage " +
 					"To Kafka with order id: {}, error: {}", orderId, e.getMessage());
 		}

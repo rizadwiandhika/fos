@@ -68,7 +68,7 @@ public class OrderMessagingDataMapper {
 						.build()).collect(Collectors.toList()))
 				.setPrice(order.getPrice().getAmount())
 				.setCreatedAt(orderPaidEvent.getCreatedAt().toInstant())
-				.setRestaurantOrderStatus(RestaurantOrderStatus.PAID)
+				.setRestaurantId(orderPaidEvent.getOrder().getRestaurantId().getValue().toString())
 				.build();
 	}
 

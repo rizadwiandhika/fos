@@ -35,7 +35,8 @@ public class PaymentResponseKafkaListener implements KafkaConsumer<PaymentRespon
 			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
 			@Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
-		log.info("{} number of payment response recieved with keys: partitions: {} and offsets: {}",
+		log.info(
+				"[PaymentResponseKafkaListener] {} number of payment response recieved with keys: partitions: {} and offsets: {}",
 				messages.size(),
 				keys.toString(),
 				partitions.toString(),

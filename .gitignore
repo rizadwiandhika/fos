@@ -103,3 +103,4 @@ buildNumber.properties
 /.vscode
 /infrastructure/docker-compose/volumes/
 /infrastructure/docker-compose/.env
+volumes

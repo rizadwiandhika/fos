@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   schema-registry:
     image: confluentinc/cp-schema-registry:${KAFKA_VERSION}
@@ -11,12 +11,13 @@ services:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
       SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-broker-2:9092,LISTENER_LOCAL://localhost:29092
-      SCHEMA_REGISTRY_DEBUG: 'true'
+      SCHEMA_REGISTRY_DEBUG: "true"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
+
   kafka-broker-1:
     image: confluentinc/cp-kafka:${KAFKA_VERSION}
     hostname: kafka-broker-1
@@ -34,6 +35,7 @@ services:
       - "./volumes/kafka/broker-1:/var/lib/kafka/data"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
+
   kafka-broker-2:
     image: confluentinc/cp-kafka:${KAFKA_VERSION}
     hostname: kafka-broker-2
@@ -51,6 +53,7 @@ services:
       - "./volumes/kafka/broker-2:/var/lib/kafka/data"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
+
   kafka-broker-3:
     image: confluentinc/cp-kafka:${KAFKA_VERSION}
     hostname: kafka-broker-3
@@ -68,6 +71,7 @@ services:
       - "./volumes/kafka/broker-3:/var/lib/kafka/data"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
+
   kafka-manager:
     image: hlebalbau/kafka-manager:stable
     restart: always

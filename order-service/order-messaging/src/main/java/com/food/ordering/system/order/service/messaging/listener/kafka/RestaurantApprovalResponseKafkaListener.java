@@ -34,11 +34,12 @@ public class RestaurantApprovalResponseKafkaListener implements KafkaConsumer<Re
 	@Override
 	@KafkaListener(id = "${kafka-consumer-config.restaurant-approval-consumer-group-id}", topics = "${order-service.restaurant-approval-response-topic-name}")
 	public void recieve(@Payload List<RestaurantApprovalResponseAvroModel> messages,
-			@Header(KafkaHeaders.MESSAGE_KEY) List<String> keys,
-			@Header(KafkaHeaders.PARTITION_ID) List<Integer> partitions,
+			@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
+			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
 			@Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
-		log.info("{} number of payment response recieved with keys: partitions: {} and offsets: {}",
+		log.info(
+				"[RestaurantApprovalResponseKafkaListener] {} number of payment response recieved with keys: partitions: {} and offsets: {}",
 				messages.size(),
 				keys.toString(),
 				partitions.toString(),

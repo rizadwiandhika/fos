@@ -68,12 +68,13 @@ public class Order extends AggregateRoot<OrderId> {
 	}
 
 	public void cancel(List<String> failureMessages) {
-		if (orderStatus != OrderStatus.CANCELLING || orderStatus != OrderStatus.PENDING) {
-			throw new OrderDomainException("Order cancel denied! Because it is not in cancelling or pending state");
+		if (orderStatus == OrderStatus.CANCELLING || orderStatus == OrderStatus.PENDING) {
+			orderStatus = OrderStatus.CANCELLED;
+			updateFailerMessages(failureMessages);
+			return;
 		}
 
-		orderStatus = OrderStatus.CANCELLED;
-		updateFailerMessages(failureMessages);
+		throw new OrderDomainException("Order cancel denied! Because it is not in cancelling or pending state");
 	}
 
 	// Business logic helpers

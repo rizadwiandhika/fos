@@ -3,11 +3,9 @@ package com.food.ordering.system.order.service.domain;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import com.food.ordering.system.order.service.domain.event.OrderPaidEvent;
 import com.food.ordering.system.order.service.domain.dto.message.PaymentResponse;
-import com.food.ordering.system.order.service.domain.mapper.OrderDataMapper;
 import com.food.ordering.system.order.service.domain.ports.input.message.listener.payment.PaymentResponseMessageListener;
-import com.food.ordering.system.order.service.domain.ports.output.message.publisher.payment.OrderCancelledPaymentRequestMessagePublisher;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -15,26 +13,26 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PaymentResponseMessageListenerImpl implements PaymentResponseMessageListener {
 
-	private OrderDomainService orderDomainService;
-	private OrderDataMapper orderDataMapper;
-	private OrderCancelledPaymentRequestMessagePublisher orderCancelledPaymentRequestMessagePublisher;
+	private static final CharSequence DELIMITER = ";";
+	private final OrderPaymentSaga orderPaymentSaga;
 
-	public PaymentResponseMessageListenerImpl(OrderDomainService orderDomainService, OrderDataMapper orderDataMapper,
-			OrderCancelledPaymentRequestMessagePublisher orderCancelledPaymentRequestMessagePublisher) {
-		this.orderDomainService = orderDomainService;
-		this.orderDataMapper = orderDataMapper;
-		this.orderCancelledPaymentRequestMessagePublisher = orderCancelledPaymentRequestMessagePublisher;
+	public PaymentResponseMessageListenerImpl(OrderPaymentSaga orderPaymentSaga) {
+		this.orderPaymentSaga = orderPaymentSaga;
 	}
 
 	@Override
 	public void paymentCancelled(PaymentResponse paymentResponse) {
-		orderDomainService.cancelOrderPayment(null, null, orderCancelledPaymentRequestMessagePublisher);
+		orderPaymentSaga.rollback(paymentResponse);
+		log.info("Order id: {} is rolled back with failure messages: {}", paymentResponse.getOrderId(),
+				String.join(DELIMITER, paymentResponse.getFailureMessages()));
 	}
 
 	@Override
 	public void paymentCompleted(PaymentResponse paymentResponse) {
-		// TODO Auto-generated method stub
+		OrderPaidEvent domainEvent = orderPaymentSaga.process(paymentResponse);
 
+		log.info("Publishing OrderPaidEvent for order id: {} ", paymentResponse.getOrderId());
+		domainEvent.fire();
 	}
 
 }
