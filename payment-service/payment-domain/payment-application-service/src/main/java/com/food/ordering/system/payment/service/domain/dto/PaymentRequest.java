@@ -19,9 +19,9 @@ public class PaymentRequest {
 	private String customerId;
 	private BigDecimal price;
 	private Instant createdAt;
-	private PaymentOrderStatus PaymentOrderStatus;
+	private PaymentOrderStatus paymentOrderStatus;
 
 	public void setPaymentOrderStatus(PaymentOrderStatus paymentOrderStatus) {
-		PaymentOrderStatus = paymentOrderStatus;
+		this.paymentOrderStatus = paymentOrderStatus;
 	}
 }

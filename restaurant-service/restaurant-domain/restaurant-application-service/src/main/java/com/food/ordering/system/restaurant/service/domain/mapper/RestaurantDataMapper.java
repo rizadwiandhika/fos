@@ -13,6 +13,8 @@ import com.food.ordering.system.restaurant.service.domain.dto.RestaurantApproval
 import com.food.ordering.system.restaurant.service.domain.entity.OrderDetail;
 import com.food.ordering.system.restaurant.service.domain.entity.Product;
 import com.food.ordering.system.restaurant.service.domain.entity.Restaurant;
+import com.food.ordering.system.restaurant.service.domain.event.OrderApprovalEvent;
+import com.food.ordering.system.restaurant.service.domain.outbox.model.OrderEventPayload;
 
 @Component
 public class RestaurantDataMapper {
@@ -33,6 +35,16 @@ public class RestaurantDataMapper {
 						.setOrderStatus(
 								OrderStatus.valueOf(restaurantApprovalRequest.getRestaurantOrderStatus().name()))
 						.build())
+				.build();
+	}
+
+	public OrderEventPayload orderApprovalEventToOrderEventPayload(OrderApprovalEvent event) {
+		return OrderEventPayload.builder()
+				.orderId(event.getOrderApproval().getOrderId().getValue().toString())
+				.restaurantId(event.getOrderApproval().getRestaurantId().getValue().toString())
+				.createdAt(event.getCreatedAt())
+				.orderApprovalStatus(event.getOrderApproval().getOrderApprovalStatus().name())
+				.failureMessages(event.getFailureMessages())
 				.build();
 	}
 

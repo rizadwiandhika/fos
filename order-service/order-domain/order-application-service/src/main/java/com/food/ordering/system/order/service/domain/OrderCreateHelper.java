@@ -37,19 +37,15 @@ public class OrderCreateHelper {
 
 	private final OrderDataMapper orderDataMapper;
 
-	private final OrderCreatedPaymentRequestMessagePublisher orderCreatedPaymentRequestMessagePublisher;
-
 	@Autowired
 	public OrderCreateHelper(OrderDomainService orderDomainService, OrderRepository orderRepository,
 			CustomerRepository customerRepository, RestaurantRepository restaurantRepository,
-			OrderDataMapper orderDataMapper,
-			OrderCreatedPaymentRequestMessagePublisher orderCreatedPaymentRequestMessagePublisher) {
+			OrderDataMapper orderDataMapper) {
 		this.orderDomainService = orderDomainService;
 		this.orderRepository = orderRepository;
 		this.customerRepository = customerRepository;
 		this.restaurantRepository = restaurantRepository;
 		this.orderDataMapper = orderDataMapper;
-		this.orderCreatedPaymentRequestMessagePublisher = orderCreatedPaymentRequestMessagePublisher;
 	}
 
 	// @Transactional method should be public, otherwise it will not work
@@ -58,8 +54,7 @@ public class OrderCreateHelper {
 		checkCustomer(createOrderCommand.getCustomerId());
 		Restaurant restaurant = checkRestaurant(createOrderCommand);
 		Order order = orderDataMapper.createOrderToOrder(createOrderCommand);
-		OrderCreatedEvent orderCreatedEvent = orderDomainService.validateAndInitiateOrder(order, restaurant,
-				orderCreatedPaymentRequestMessagePublisher);
+		OrderCreatedEvent orderCreatedEvent = orderDomainService.validateAndInitiateOrder(order, restaurant);
 
 		log.info("Saving order...");
 

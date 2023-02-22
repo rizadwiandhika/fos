@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import com.food.ordering.system.order.service.domain.dto.message.RestaurantApprovalResponse;
-import com.food.ordering.system.order.service.domain.event.OrderCancelledEvent;
 import com.food.ordering.system.order.service.domain.ports.input.message.listener.restaurantapproval.RestaurantApprovalResponseMessageListener;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +28,9 @@ public class RestaurantApprovalResponseMessageListenerImpl implements Restaurant
 
 	@Override
 	public void orderRejected(RestaurantApprovalResponse restaurantApprovalResponse) {
-		OrderCancelledEvent domainEvent = orderApprovalSaga.rollback(restaurantApprovalResponse);
-		log.info("Order id: {} is rejected. Reasons: {}", restaurantApprovalResponse.getOrderId(),
+		orderApprovalSaga.rollback(restaurantApprovalResponse);
+		log.info("Order id: {} approval is rejected. Reasons: {}", restaurantApprovalResponse.getOrderId(),
 				String.join(DELIMITER, restaurantApprovalResponse.getFailureMessages()));
-
-		domainEvent.fire();
 	}
 
 }

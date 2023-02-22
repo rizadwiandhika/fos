@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.food.ordering.system.domain.DomainConstants;
-import com.food.ordering.system.domain.event.publisher.DomainEventPublisher;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.entity.Product;
 import com.food.ordering.system.order.service.domain.entity.Restaurant;
@@ -35,27 +34,25 @@ public class OrderDomainServiceImpl implements OrderDomainService {
 	}
 
 	@Override
-	public OrderCancelledEvent cancelOrderPayment(Order order, List<String> reasons,
-			DomainEventPublisher<OrderCancelledEvent> publisher) {
+	public OrderCancelledEvent cancelOrderPayment(Order order, List<String> reasons) {
 		order.initCancel(reasons);
 
 		log.info("Cancelling ordder for order id: {}", order.getId().getValue());
 
-		return new OrderCancelledEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), publisher);
+		return new OrderCancelledEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)));
 	}
 
 	@Override
-	public OrderPaidEvent payOrder(Order order, DomainEventPublisher<OrderPaidEvent> publisher) {
+	public OrderPaidEvent payOrder(Order order) {
 		order.pay();
 
 		log.info("Order {} is paid", order.getId());
 
-		return new OrderPaidEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), publisher);
+		return new OrderPaidEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)));
 	}
 
 	@Override
-	public OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant,
-			DomainEventPublisher<OrderCreatedEvent> publisher) {
+	public OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant) {
 		validateRestaurant(restaurant);
 		setOrderProductInformation(order, restaurant);
 
@@ -64,7 +61,7 @@ public class OrderDomainServiceImpl implements OrderDomainService {
 
 		log.info("Order with id {} is created", order.getId().getValue());
 
-		return new OrderCreatedEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), publisher);
+		return new OrderCreatedEvent(order, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)));
 	}
 
 	private void validateRestaurant(Restaurant restaurant) {

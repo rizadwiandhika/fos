@@ -9,6 +9,7 @@
   <modules>
     <module>kafka</module>
     <module>saga</module>
+    <module>outbox</module>
   </modules>
   <groupId>com.food.ordering.system</groupId>
   <artifactId>infrastructure</artifactId>
