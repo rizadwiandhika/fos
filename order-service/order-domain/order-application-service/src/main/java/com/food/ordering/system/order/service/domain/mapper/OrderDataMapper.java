@@ -18,9 +18,11 @@ import com.food.ordering.system.domain.valueObject.RestaurantOrderStatus;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderCommand;
 import com.food.ordering.system.order.service.domain.dto.create.CreateOrderResponse;
 import com.food.ordering.system.order.service.domain.dto.create.OrderAddress;
+import com.food.ordering.system.order.service.domain.dto.message.CustomerMessage;
 import com.food.ordering.system.order.service.domain.dto.message.PaymentResponse;
 // import com.food.ordering.system.order.service.domain.dto.create.OrderItem;
 import com.food.ordering.system.order.service.domain.dto.track.TrackOrderResponse;
+import com.food.ordering.system.order.service.domain.entity.Customer;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.entity.OrderItem;
 import com.food.ordering.system.order.service.domain.entity.Product;
@@ -137,5 +139,10 @@ public class OrderDataMapper {
 								.build())
 						.collect(Collectors.toList()))
 				.build();
+	}
+
+	public Customer customerMessageToCustomer(CustomerMessage message) {
+		return new Customer(new CustomerId(message.getId()), message.getUsername(), message.getFirstName(),
+				message.getLastName());
 	}
 }

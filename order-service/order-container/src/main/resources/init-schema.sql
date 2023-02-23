@@ -1,3 +1,7 @@
+/* 
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSourceScriptDatabaseInitializer' defined in class path resource [org/springframework/boot/autoconfigure/sql/init/DataSourceInitializationConfiguration.class]: Invocation of init method failed; nested exception is org.springframework.jdbc.datasource.init.ScriptStatementFailedException: Failed to execute SQL script statement #6 of class path resource [init-schema.sql]: DROP TABLE IF EXISTS order.customers CASCADE; nested exception is org.postgresql.util.PSQLException: ERROR: syntax error at or near "order"
+ */
+
 DROP SCHEMA IF EXISTS "order" CASCADE;
 CREATE SCHEMA "order";
 
@@ -5,6 +9,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DROP TYPE IF EXISTS order_status;
 CREATE TYPE order_status AS ENUM ('PENDING', 'PAID', 'APPROVED', 'CANCELLED', 'CANCELLING');
+
+DROP TABLE IF EXISTS "order".customers CASCADE;
+CREATE TABLE "order".customers (
+	id uuid NOT NULL,
+	username character varying COLLATE pg_catalog."default" NOT NULL,
+	first_name character varying COLLATE pg_catalog."default" NOT NULL,
+	last_name character varying COLLATE pg_catalog."default" NOT NULL,
+	
+	CONSTRAINT customers_pkey PRIMARY KEY (id)
+);
 
 CREATE TABLE "order".orders (
 	id uuid NOT NULL,

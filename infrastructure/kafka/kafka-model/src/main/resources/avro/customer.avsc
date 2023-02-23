@@ -1,0 +1,17 @@
+{
+	"namespace": "com.food.ordering.system.kafka.order.avro.model",
+	"type": "record",
+	"name": "CustomerAvroModel",
+	"fields": [
+		{ "name": "username", "type": "string" },
+		{ "name": "firstName", "type": "string" },
+		{ "name": "lastName", "type": "string" },
+		{
+			"name": "id",
+			"type": {
+				"type": "string",
+				"logicalType": "uuid"
+			}
+		}
+	]
+}
