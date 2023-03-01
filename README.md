@@ -19,6 +19,10 @@
 
 ---
 
+![image](https://user-images.githubusercontent.com/68406409/222019579-005fb2e0-670e-439e-8bc0-112e11d088fe.png)
+![image](https://user-images.githubusercontent.com/68406409/222019597-bf2a00c1-01ce-4596-8176-dc4f0a48bd95.png)
+
+
 Folder disusun berdasarkan Clean Architecture.
 
 - `order-application`: (Layer 4) Framework, tempat routing dan controller
