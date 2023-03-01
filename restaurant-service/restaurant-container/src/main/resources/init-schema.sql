@@ -1,11 +1,9 @@
 DROP SCHEMA IF EXISTS restaurant CASCADE;
-
 CREATE SCHEMA restaurant;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DROP TABLE IF EXISTS restaurant.restaurants CASCADE;
-
 CREATE TABLE restaurant.restaurants
 (
     id uuid NOT NULL,
@@ -15,11 +13,9 @@ CREATE TABLE restaurant.restaurants
 );
 
 DROP TYPE IF EXISTS approval_status;
-
 CREATE TYPE approval_status AS ENUM ('APPROVED', 'REJECTED');
 
 DROP TABLE IF EXISTS restaurant.order_approval CASCADE;
-
 CREATE TABLE restaurant.order_approval
 (
     id uuid NOT NULL,
@@ -30,7 +26,6 @@ CREATE TABLE restaurant.order_approval
 );
 
 DROP TABLE IF EXISTS restaurant.products CASCADE;
-
 CREATE TABLE restaurant.products
 (
     id uuid NOT NULL,
@@ -41,7 +36,6 @@ CREATE TABLE restaurant.products
 );
 
 DROP TABLE IF EXISTS restaurant.restaurant_products CASCADE;
-
 CREATE TABLE restaurant.restaurant_products
 (
     id uuid NOT NULL,
@@ -64,8 +58,32 @@ ALTER TABLE restaurant.restaurant_products
     ON DELETE RESTRICT
     NOT VALID;
 
-DROP MATERIALIZED VIEW IF EXISTS restaurant.order_restaurant_m_view;
+DROP TYPE IF EXISTS outbox_status;
+CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
 
+DROP TABLE IF EXISTS restaurant.order_outbox CASCADE;
+CREATE TABLE restaurant.order_outbox (
+    id uuid NOT NULL,
+    saga_id uuid NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    processed_at TIMESTAMP WITH TIME ZONE,
+    type character varying COLLATE pg_catalog."default" NOT NULL,
+    payload jsonb NOT NULL,
+    outbox_status outbox_status NOT NULL,
+    approval_status approval_status NOT NULL,
+    version integer NOT NULL,
+    CONSTRAINT order_autbox_pkey PRIMARY KEY (id)
+
+);
+
+CREATE INDEX "restaurant_order_outbox_saga_status"
+    ON "restaurant".order_outbox
+     (type, approval_status);
+CREATE UNIQUE INDEX "restaurant_order_outbox_saga_id"
+    ON "restaurant".order_outbox
+     (type, saga_id, approval_status, outbox_status);
+
+DROP MATERIALIZED VIEW IF EXISTS restaurant.order_restaurant_m_view;
 CREATE MATERIALIZED VIEW restaurant.order_restaurant_m_view
 TABLESPACE pg_default
 AS
@@ -100,3 +118,4 @@ CREATE trigger refresh_order_restaurant_m_view
 after INSERT OR UPDATE OR DELETE OR truncate
 ON restaurant.restaurant_products FOR each statement
 EXECUTE PROCEDURE restaurant.refresh_order_restaurant_m_view();
+

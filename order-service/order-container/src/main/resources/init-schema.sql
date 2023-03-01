@@ -1,3 +1,7 @@
+/* 
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSourceScriptDatabaseInitializer' defined in class path resource [org/springframework/boot/autoconfigure/sql/init/DataSourceInitializationConfiguration.class]: Invocation of init method failed; nested exception is org.springframework.jdbc.datasource.init.ScriptStatementFailedException: Failed to execute SQL script statement #6 of class path resource [init-schema.sql]: DROP TABLE IF EXISTS order.customers CASCADE; nested exception is org.postgresql.util.PSQLException: ERROR: syntax error at or near "order"
+ */
+
 DROP SCHEMA IF EXISTS "order" CASCADE;
 CREATE SCHEMA "order";
 
@@ -5,6 +9,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DROP TYPE IF EXISTS order_status;
 CREATE TYPE order_status AS ENUM ('PENDING', 'PAID', 'APPROVED', 'CANCELLED', 'CANCELLING');
+
+DROP TABLE IF EXISTS "order".customers CASCADE;
+CREATE TABLE "order".customers (
+	id uuid NOT NULL,
+	username character varying COLLATE pg_catalog."default" NOT NULL,
+	first_name character varying COLLATE pg_catalog."default" NOT NULL,
+	last_name character varying COLLATE pg_catalog."default" NOT NULL,
+	
+	CONSTRAINT customers_pkey PRIMARY KEY (id)
+);
 
 CREATE TABLE "order".orders (
 	id uuid NOT NULL,
@@ -56,3 +70,57 @@ ALTER TABLE "order".order_address
 	ON UPDATE NO ACTION
 	ON DELETE CASCADE 
 	NOT VALID;
+
+DROP TYPE IF EXISTS saga_status;
+CREATE TYPE saga_status AS ENUM ('STARTED', 'FAILED', 'SUCCEEDED', 'PROCESSING', 'COMPENSATING', 'COMPENSATED');
+
+DROP TYPE IF EXISTS outbox_status;
+CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+
+DROP TABLE IF EXISTS "order".payment_outbox CASCADE;
+CREATE TABLE "order".payment_outbox (
+	id uuid NOT NULL,
+	saga_id uuid NOT NULL,
+	created_at timestamp with time zone NOT NULL,
+	processed_at timestamp with time zone,
+	type character varying COLLATE pg_catalog."default" NOT NULL,
+	payload jsonb NOT NULL,
+	outbox_status outbox_status NOT NULL,
+	order_status order_status NOT NULL,
+	saga_status saga_status NOT NULL,
+	version integer NOT NULL,
+
+	CONSTRAINT payment_outbox_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX "payment_outbox_saga_status"
+	ON "order".payment_outbox
+	(type, outbox_status, saga_status);
+
+-- CREATE UNIQUE INDEX "payment_outbox_saga_id"
+-- 	ON "order".payment_outbox
+-- 	(type, saga_id, saga_status);
+
+DROP TABLE IF EXISTS "order".restaurant_approval_outbox CASCADE;
+CREATE TABLE "order".restaurant_approval_outbox (
+	id uuid NOT NULL,
+	saga_id uuid NOT NULL,
+	created_at timestamp with time zone NOT NULL,
+	processed_at timestamp with time zone,
+	type character varying COLLATE pg_catalog."default" NOT NULL,
+	payload jsonb NOT NULL,
+	outbox_status outbox_status NOT NULL,
+	order_status order_status NOT NULL,
+	saga_status saga_status NOT NULL,
+	version integer NOT NULL,
+
+	CONSTRAINT restaurant_approval_outbox_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX "restaurant_approval_outbox_saga_status"
+	ON "order".restaurant_approval_outbox
+	(type, outbox_status, saga_status);
+
+-- CREATE UNIQUE INDEX "restaurant_approval_outbox_saga_id"
+-- 	ON "order".restaurant_approval_outbox
+-- 	(type, saga_id, saga_status);

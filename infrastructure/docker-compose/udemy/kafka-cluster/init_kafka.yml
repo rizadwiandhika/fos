@@ -1,8 +1,8 @@
-version: '3.7'
+version: "3.7"
 services:
   init-kafka:
     image: confluentinc/cp-kafka:${KAFKA_VERSION}
-    entrypoint: [ '/bin/sh', '-c' ]
+    entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       # block until kafka is reachable
@@ -28,3 +28,9 @@ services:
       "
     networks:
       - ${GLOBAL_NETWORK:-kafka}
+#     networks:
+#       ${GLOBAL_NETWORK:-kafka}:
+#         external: true
+# networks:
+#   ${GLOBAL_NETWORK:-kafka}:
+#     external: true

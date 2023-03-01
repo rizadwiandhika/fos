@@ -2,6 +2,7 @@ package com.food.ordering.system.order.service.messaging.listener.kafka;
 
 import java.util.List;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.food.ordering.system.kafka.consumer.KafkaConsumer;
 import com.food.ordering.system.kafka.order.avro.model.PaymentResponseAvroModel;
+import com.food.ordering.system.order.service.domain.exception.OrderNotFoundException;
 import com.food.ordering.system.order.service.domain.ports.input.message.listener.payment.PaymentResponseMessageListener;
 import com.food.ordering.system.order.service.messaging.mapper.OrderMessagingDataMapper;
 
@@ -28,6 +30,8 @@ public class PaymentResponseKafkaListener implements KafkaConsumer<PaymentRespon
 		this.orderMessagingDataMapper = orderMessagingDataMapper;
 	}
 
+	// * When this method throws an error, Spring will read again the sam message
+	// * from the Kafka. So it does a retry for a failed message, which is great
 	@Override
 	@KafkaListener(id = "${kafka-consumer-config.payment-consumer-group-id}", topics = "${order-service.payment-response-topic-name}")
 	public void recieve(@Payload List<PaymentResponseAvroModel> messages,
@@ -43,17 +47,27 @@ public class PaymentResponseKafkaListener implements KafkaConsumer<PaymentRespon
 				offsets.toString());
 
 		messages.forEach(message -> {
-			if (com.food.ordering.system.kafka.order.avro.model.PaymentStatus.COMPLETED == message.getPaymentStatus()) {
-				log.info("Processing successful payment for order id: {}", message.getOrderId());
-				paymentResponseMessageListener
-						.paymentCompleted(orderMessagingDataMapper.paymentResponseAvroModelToPaymentResponse(message));
-			} else if (com.food.ordering.system.kafka.order.avro.model.PaymentStatus.CANCELLED == message
-					.getPaymentStatus()
-					|| com.food.ordering.system.kafka.order.avro.model.PaymentStatus.FAILED == message
-							.getPaymentStatus()) {
-				log.info("Processing unsuccessful payment for order id: {}", message.getOrderId());
-				paymentResponseMessageListener
-						.paymentCancelled(orderMessagingDataMapper.paymentResponseAvroModelToPaymentResponse(message));
+			try {
+				if (com.food.ordering.system.kafka.order.avro.model.PaymentStatus.COMPLETED == message
+						.getPaymentStatus()) {
+					log.info("Processing successful payment for order id: {}", message.getOrderId());
+					paymentResponseMessageListener
+							.paymentCompleted(
+									orderMessagingDataMapper.paymentResponseAvroModelToPaymentResponse(message));
+				} else if (com.food.ordering.system.kafka.order.avro.model.PaymentStatus.CANCELLED == message
+						.getPaymentStatus()
+						|| com.food.ordering.system.kafka.order.avro.model.PaymentStatus.FAILED == message
+								.getPaymentStatus()) {
+					log.info("Processing unsuccessful payment for order id: {}", message.getOrderId());
+					paymentResponseMessageListener
+							.paymentCancelled(
+									orderMessagingDataMapper.paymentResponseAvroModelToPaymentResponse(message));
+				}
+			} catch (OptimisticLockingFailureException e) {
+				log.error("OptimisticLockingFailureException error caught for order id: {}", message.getOrderId());
+			} catch (OrderNotFoundException e) {
+				log.error("OrderNotFoundException error caught for order id: {}", message.getOrderId());
+
 			}
 		});
 	}

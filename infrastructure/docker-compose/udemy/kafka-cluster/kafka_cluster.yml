@@ -32,7 +32,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_COMPRESSION_TYPE: producer
     volumes:
-      - "./volumes/kafka/broker-1:/var/lib/kafka/data"
+      # - "./volumes/kafka/broker-1:/var/lib/kafka/data"
+      - "v-broker-1:/var/lib/kafka/data"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
 
@@ -50,7 +51,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_COMPRESSION_TYPE: producer
     volumes:
-      - "./volumes/kafka/broker-2:/var/lib/kafka/data"
+      # - "./volumes/kafka/broker-2:/var/lib/kafka/data"
+      - "v-broker-2:/var/lib/kafka/data"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
 
@@ -68,7 +70,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_COMPRESSION_TYPE: producer
     volumes:
-      - "./volumes/kafka/broker-3:/var/lib/kafka/data"
+      # - "./volumes/kafka/broker-3:/var/lib/kafka/data"
+      - "v-broker-3:/var/lib/kafka/data"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
 
@@ -81,3 +84,13 @@ services:
       ZK_HOSTS: "zookeeper:2181"
     networks:
       - ${GLOBAL_NETWORK:-kafka}
+    # networks:
+    #   ${GLOBAL_NETWORK:-kafka}:
+    #     external: true
+volumes:
+  v-broker-1:
+  v-broker-2:
+  v-broker-3:
+# networks:
+#   ${GLOBAL_NETWORK:-kafka}:
+#     external: true
